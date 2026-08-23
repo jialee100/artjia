@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>미술실 · 시작 페이지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#DDD7CB; --paper-deep:#CEC6B6; --mat:#E6E1D6;
+    --ink:#24221E; --ink-soft:#6B6459; --ink-faint:#9A9285;
+    --slate:#63757C; --ochre:#9A8A63; --rule:rgba(36,34,30,.16);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background-color:var(--paper); color:var(--ink);
+    font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-weight:300; min-height:100%;
+    display:flex; flex-direction:column; align-items:center;
+    padding:clamp(28px,5vh,64px) 24px 40px; position:relative;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='300' height='300' filter='url(%23f)' opacity='0.42'/></svg>"),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='3'/><feColorMatrix type='saturate' values='0'/></filter><rect width='400' height='400' filter='url(%23g)' opacity='0.5'/></svg>");
+    background-size:300px 300px,620px 620px; mix-blend-mode:multiply; opacity:.5;
+  }
+  body::after{
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background:
+      repeating-linear-gradient(90deg,rgba(36,34,30,.028) 0 1px,transparent 1px 4px),
+      radial-gradient(120% 100% at 50% 30%,transparent 45%,rgba(80,70,55,.16) 100%);
+  }
+  .sheet{ position:relative; z-index:1; width:100%; max-width:980px; }
+
+  .eyebrow{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--ink-faint); padding-bottom:14px; border-bottom:1px solid var(--rule);
+  }
+  .clock-block{ text-align:center; padding:clamp(30px,7vh,72px) 0 clamp(24px,4vh,44px); }
+  .clock{
+    font-family:'Cormorant Garamond','Gowun Batang',serif; font-weight:300;
+    font-size:clamp(76px,16vw,168px); line-height:.92; letter-spacing:.02em;
+    display:inline-flex; align-items:flex-start; gap:.06em;
+  }
+  .clock .colon{ animation:blink 2s steps(1,end) infinite; }
+  @keyframes blink{ 0%,50%{opacity:1} 51%,100%{opacity:.22} }
+  .clock .sec{
+    font-size:.2em; letter-spacing:.14em; color:var(--ink-faint);
+    margin-top:.55em; font-family:'Noto Sans KR',sans-serif;
+  }
+  .datum{ margin-top:14px; font-family:'Gowun Batang',serif;
+    font-size:clamp(14px,1.6vw,17px); color:var(--ink-soft); letter-spacing:.06em; }
+
+  .search-row{ display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--ink); padding-bottom:10px; }
+  .search-row input{ flex:1; border:0; background:transparent; outline:none;
+    font-family:'Gowun Batang',serif; font-size:19px; color:var(--ink); padding:4px 2px; }
+  .search-row input::placeholder{ color:var(--ink-faint); }
+  .search-row button.go{ border:0; background:transparent; cursor:pointer; color:var(--ink-soft);
+    font-size:19px; line-height:1; padding:4px 2px; transition:color .2s,transform .2s; }
+  .search-row button.go:hover{ color:var(--ink); transform:translateX(2px); }
+  .engines{ display:flex; gap:22px; margin-top:12px; }
+  .engines button{ border:0; background:transparent; cursor:pointer; padding:2px 0;
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-faint);
+    position:relative; transition:color .2s; }
+  .engines button::after{ content:''; position:absolute; left:0; right:0; bottom:-4px; height:1px;
+    background:var(--slate); transform:scaleX(0); transform-origin:left; transition:transform .25s; }
+  .engines button[aria-pressed="true"]{ color:var(--slate); }
+  .engines button[aria-pressed="true"]::after{ transform:scaleX(1); }
+  .engines button:hover{ color:var(--ink-soft); }
+
+  .plate{
+    margin-top:clamp(34px,6vh,60px); background:var(--mat);
+    border:1px solid rgba(36,34,30,.14);
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 14px 34px -26px rgba(40,34,24,.85);
+    display:grid; grid-template-columns:minmax(0,40%) 1fr;
+    opacity:0; transform:translateY(10px);
+    animation:rise .8s cubic-bezier(.2,.7,.3,1) .15s forwards;
+  }
+  @keyframes rise{ to{ opacity:1; transform:none; } }
+  .frame{ padding:20px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; border-right:1px solid rgba(36,34,30,.12); background:rgba(36,34,30,.03); min-height:240px; }
+  .frame img{ display:block; max-width:100%; max-height:360px; width:auto; opacity:0;
+    border:1px solid rgba(36,34,30,.22); box-shadow:0 10px 22px -18px rgba(30,26,18,.9);
+    transition:opacity .6s; }
+  .frame img.shown{ opacity:1; }
+  .plate-status{ font-size:11px; letter-spacing:.14em; color:var(--ink-faint); text-align:center; }
+  .plate-status a{ color:var(--slate); }
+
+  .label{ padding:clamp(24px,3vw,34px); display:flex; flex-direction:column; }
+  .label .kicker{ font-size:10px; letter-spacing:.28em; text-transform:uppercase;
+    color:var(--ochre); margin-bottom:16px; }
+  .label h1{ font-family:'Gowun Batang',serif; font-weight:700;
+    font-size:clamp(21px,2.6vw,27px); line-height:1.35; letter-spacing:-.01em; }
+  .label .artist{ font-family:'Gowun Batang',serif; font-size:15px; color:var(--ink-soft); margin-top:8px; }
+  .label .facts{ font-size:12px; color:var(--ink-faint); margin-top:6px; letter-spacing:.03em; line-height:1.7; }
+  .label hr{ border:0; border-top:1px solid var(--rule); margin:20px 0; }
+  .q-tag{ font-size:10px; letter-spacing:.28em; text-transform:uppercase; color:var(--slate); margin-bottom:10px; }
+  .question{ font-family:'Gowun Batang',serif; font-size:clamp(15px,1.8vw,17.5px);
+    line-height:1.85; text-indent:-.4em; }
+  .actions{ margin-top:auto; padding-top:24px; display:flex; gap:18px; flex-wrap:wrap; }
+  .actions a,.actions button{ border:0; background:transparent; padding:0 0 3px; cursor:pointer;
+    font-family:'Noto Sans KR',sans-serif; font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--ink-soft); text-decoration:none; border-bottom:1px solid var(--rule);
+    transition:color .2s,border-color .2s; }
+  .actions a:hover,.actions button:hover{ color:var(--slate); border-color:var(--slate); }
+
+  .shortcuts{ margin-top:26px; padding-top:16px; border-top:1px solid var(--rule);
+    display:flex; gap:26px; flex-wrap:wrap; }
+  .shortcuts a{ font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--ink-faint); text-decoration:none; transition:color .2s; }
+  .shortcuts a:hover{ color:var(--ink); }
+
+  :focus-visible{ outline:1.5px solid var(--slate); outline-offset:3px; }
+
+  @media (max-width:720px){
+    .plate{ grid-template-columns:1fr; }
+    .frame{ border-right:0; border-bottom:1px solid rgba(36,34,30,.12); }
+    .frame img{ max-height:280px; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{ animation:none !important; transition:none !important; }
+    .plate{ opacity:1; transform:none; } .frame img{ opacity:1; }
+  }
+</style>
+</head>
+<body>
+<main class="sheet">
+
+  <div class="eyebrow">
+    <span id="weekday">—</span>
+    <span id="plate-no">오늘의 도판</span>
+  </div>
+
+  <div class="clock-block">
+    <div class="clock">
+      <span id="hh">00</span><span class="colon">:</span><span id="mm">00</span><span class="sec" id="ss">00</span>
+    </div>
+    <div class="datum" id="datum">—</div>
+  </div>
+
+  <div class="search-row">
+    <input id="q" type="text" placeholder="무엇을 찾으세요" autocomplete="off" autofocus>
+    <button class="go" id="go" aria-label="검색">→</button>
+  </div>
+  <div class="engines" id="engines">
+    <button data-engine="google" aria-pressed="true">Google</button>
+    <button data-engine="naver" aria-pressed="false">Naver</button>
+    <button data-engine="arts" aria-pressed="false">Arts &amp; Culture</button>
+  </div>
+
+  <section class="plate" id="plate">
+    <div class="frame">
+      <img id="art-img" alt="" referrerpolicy="no-referrer">
+      <div class="plate-status" id="art-status">도판 불러오는 중</div>
+    </div>
+    <div class="label">
+      <div class="kicker">오늘의 명화</div>
+      <h1 id="art-title">—</h1>
+      <div class="artist" id="art-artist">—</div>
+      <div class="facts" id="art-facts">—</div>
+      <hr>
+      <div class="q-tag">감상 질문</div>
+      <p class="question" id="art-question">—</p>
+      <div class="actions">
+        <button id="next">다른 작품 보기</button>
+        <a id="open-img" href="#" target="_blank" rel="noopener">도판 크게 보기</a>
+        <a id="lookup" href="#" target="_blank" rel="noopener">작품 더 찾아보기</a>
+      </div>
+    </div>
+  </section>
+
+  <nav class="shortcuts">
+    <a href="https://mail.google.com" target="_blank" rel="noopener">메일</a>
+    <a href="https://drive.google.com" target="_blank" rel="noopener">드라이브</a>
+    <a href="https://calendar.google.com" target="_blank" rel="noopener">캘린더</a>
+    <a href="https://artsandculture.google.com" target="_blank" rel="noopener">아트 앤 컬처</a>
+    <a href="https://www.museum.go.kr" target="_blank" rel="noopener">국립중앙박물관</a>
+  </nav>
+
+</main>
+
+<script>
+/* ── 도판 목록: file 이 틀려도 search 로 자동 재검색합니다 ── */
+const WORKS = [
+ { t:"진주 귀걸이를 한 소녀", a:"요하네스 페르메이르", y:"1665년경", f:"캔버스에 유채 · 마우리츠하위스, 헤이그",
+   file:"Johannes Vermeer (1632-1675) - The Girl With The Pearl Earring (1665).jpg",
+   search:"Vermeer Girl with a Pearl Earring painting",
+   q:"소녀는 방금 고개를 돌린 것처럼 보입니다. 그림 바깥의 누구를, 어떤 마음으로 보고 있을까요? 그렇게 생각한 근거를 화면 안에서 찾아 말해 보세요." },
+ { t:"별이 빛나는 밤", a:"빈센트 반 고흐", y:"1889", f:"캔버스에 유채 · 뉴욕 현대미술관",
+   file:"Van Gogh - Starry Night - Google Art Project.jpg",
+   search:"Van Gogh Starry Night Google Art Project",
+   q:"밤하늘의 붓자국을 손으로 따라 그린다면 어떤 속도와 방향이 될까요? 그 움직임은 아래 마을의 고요함과 어떤 관계를 맺고 있나요?" },
+ { t:"안개 바다 위의 방랑자", a:"카스파르 다비트 프리드리히", y:"1818", f:"캔버스에 유채 · 함부르크 미술관",
+   file:"Caspar David Friedrich - Wanderer above the sea of fog.jpg",
+   search:"Caspar David Friedrich Wanderer above the sea of fog",
+   q:"화가는 인물의 뒷모습만 보여 줍니다. 얼굴을 감춘 선택이 보는 사람에게 무엇을 하게 만드나요?" },
+ { t:"키스", a:"구스타프 클림트", y:"1908", f:"캔버스에 유채와 금박 · 벨베데레, 빈",
+   file:"Gustav Klimt 016.jpg",
+   search:"Gustav Klimt The Kiss Der Kuss Belvedere",
+   q:"두 사람의 옷에 쓰인 무늬는 서로 다릅니다. 무늬의 차이가 두 인물에 대해 무엇을 말해 준다고 보나요?" },
+ { t:"절규", a:"에드바르 뭉크", y:"1893", f:"판지에 유채·템페라·파스텔 · 노르웨이 국립미술관",
+   file:"Edvard Munch, 1893, The Scream, oil, tempera and pastel on cardboard, 91 x 73 cm, National Gallery of Norway.jpg",
+   search:"Edvard Munch The Scream 1893 National Gallery Norway",
+   q:"소리를 색과 선으로 그린다면 어떤 모습일까요? 화면에서 '소리처럼' 보이는 부분을 하나 짚고 그 이유를 설명해 보세요." },
+ { t:"그랑드 자트 섬의 일요일 오후", a:"조르주 쇠라", y:"1884–1886", f:"캔버스에 유채 · 시카고 미술관",
+   file:"Georges Seurat - A Sunday on La Grande Jatte -- 1884 - Google Art Project.jpg",
+   search:"Seurat Sunday on La Grande Jatte Google Art Project",
+   q:"가까이서 볼 때와 멀리서 볼 때 그림은 어떻게 달라지나요? 화가는 관람자의 눈에 어떤 일을 맡기고 있는 걸까요?" },
+ { t:"아메리칸 고딕", a:"그랜트 우드", y:"1930", f:"비버보드에 유채 · 시카고 미술관",
+   file:"Grant Wood - American Gothic - Google Art Project.jpg",
+   search:"Grant Wood American Gothic Google Art Project",
+   q:"두 인물의 시선 방향이 서로 어긋나 있습니다. 이 어긋남이 만들어 내는 분위기를 한 문장으로 표현해 보세요." },
+ { t:"시녀들", a:"디에고 벨라스케스", y:"1656", f:"캔버스에 유채 · 프라도 미술관, 마드리드",
+   file:"Las Meninas, by Diego Velázquez, from Prado in Google Earth.jpg",
+   search:"Las Meninas Velazquez Prado",
+   q:"이 그림에서 '보는 사람'은 누구이고 '보이는 사람'은 누구인가요? 뒷벽의 거울과 화가의 시선을 단서로 삼아 보세요." },
+ { t:"인상, 해돋이", a:"클로드 모네", y:"1872", f:"캔버스에 유채 · 마르모탕 모네 미술관, 파리",
+   file:"Claude Monet, Impression, soleil levant.jpg",
+   search:"Monet Impression soleil levant",
+   q:"형태보다 빛을 먼저 그린 그림입니다. 이 장면을 사진으로 찍는다면 무엇이 사라질까요?" },
+ { t:"이삭 줍는 여인들", a:"장 프랑수아 밀레", y:"1857", f:"캔버스에 유채 · 오르세 미술관, 파리",
+   file:"Jean-François Millet (II) - The Gleaners - WGA15691.jpg",
+   search:"Millet The Gleaners Des glaneuses",
+   q:"화면 뒤쪽의 풍요와 앞쪽의 노동이 나란히 놓여 있습니다. 화가는 어느 쪽에 빛을 더 주었나요? 왜 그랬을까요?" },
+ { t:"아르놀피니 부부의 초상", a:"얀 반 에이크", y:"1434", f:"패널에 유채 · 내셔널 갤러리, 런던",
+   file:"Van Eyck - Arnolfini Portrait.jpg",
+   search:"Van Eyck Arnolfini Portrait",
+   q:"강아지, 촛불, 벗어 둔 신발, 거울은 저마다 무언가를 대신 말합니다. 하나를 골라 오늘의 물건으로 바꾼다면 무엇을 놓겠어요?" },
+ { t:"가나가와 앞바다의 높은 파도", a:"가쓰시카 호쿠사이", y:"1831년경", f:"목판화 · 후지산 36경 연작",
+   file:"Tsunami by hokusai 19th century.jpg",
+   search:"Hokusai Great Wave off Kanagawa",
+   q:"파도와 후지산 중 무엇이 더 커 보이나요? 크기를 뒤집은 이 구도가 자연과 인간에 대해 무엇을 말하고 있을까요?" },
+ { t:"씨름", a:"김홍도", y:"18세기", f:"종이에 담채 · 단원풍속도첩, 국립중앙박물관",
+   file:"Danwon-Ssireum.jpg",
+   search:"Danwon Ssireum Kim Hongdo pungsokdo",
+   q:"구경꾼들의 시선이 한 점으로 모입니다. 우리 반 교실을 이 구도로 그린다면 한가운데에 무엇을 놓겠어요?" },
+ { t:"서당", a:"김홍도", y:"18세기", f:"종이에 담채 · 단원풍속도첩, 국립중앙박물관",
+   file:"Danwon-Seodang.jpg",
+   search:"Danwon Seodang Kim Hongdo pungsokdo",
+   q:"우는 아이와 웃는 아이들이 한 화면에 있습니다. 화가는 이 장면을 어느 편에서 바라보고 있다고 느껴지나요?" },
+ { t:"미인도", a:"신윤복", y:"18세기 말", f:"비단에 채색 · 간송미술관",
+   file:"Hyewon-Miindo.jpg",
+   search:"Shin Yunbok Miindo portrait of a beauty",
+   q:"옷과 자세는 아주 자세히 그렸는데 배경은 비어 있습니다. 비워 둔 여백이 인물에게 무엇을 해 주고 있나요?" },
+ { t:"아이의 목욕", a:"메리 커샛", y:"1893", f:"캔버스에 유채 · 시카고 미술관",
+   file:"Mary Cassatt - The Child's Bath - Google Art Project.jpg",
+   search:"Mary Cassatt The Child's Bath",
+   q:"화가는 관람자를 위에서 내려다보는 자리에 세웠습니다. 이 시점이 두 사람의 관계를 어떻게 보이게 하나요?" }
+];
+
+const DAYS = ["일요일","월요일","화요일","수요일","목요일","금요일","토요일"];
+const pad = n => String(n).padStart(2,"0");
+const $ = id => document.getElementById(id);
+
+function tick(){
+  const d = new Date();
+  $("hh").textContent = pad(d.getHours());
+  $("mm").textContent = pad(d.getMinutes());
+  $("ss").textContent = pad(d.getSeconds());
+  $("datum").textContent = d.getFullYear()+"년 "+(d.getMonth()+1)+"월 "+d.getDate()+"일 "+DAYS[d.getDay()];
+  $("weekday").textContent = DAYS[d.getDay()];
+}
+tick(); setInterval(tick,1000);
+
+/* 이미지 후보: 커먼즈 → 위키백과 → 커먼즈 검색으로 자동 복구 */
+const filePath = (host,file,w) =>
+  "https://"+host+"/wiki/Special:FilePath/"+encodeURIComponent(file)+"?width="+w;
+
+async function commonsSearch(term){
+  const url = "https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*"
+    + "&generator=search&gsrnamespace=6&gsrlimit=1&gsrsearch=" + encodeURIComponent(term)
+    + "&prop=imageinfo&iiprop=url&iiurlwidth=1100";
+  const res = await fetch(url);
+  const data = await res.json();
+  const pages = data && data.query && data.query.pages;
+  if(!pages) return null;
+  const info = Object.values(pages)[0].imageinfo;
+  return info ? (info[0].thumburl || info[0].url) : null;
+}
+
+const dayIndex = Math.floor(Date.now()/86400000);
+let offset = 0, token = 0;
+
+function loadPlate(w){
+  const img = $("art-img"), status = $("art-status");
+  const mine = ++token;
+  const tries = [
+    filePath("commons.wikimedia.org", w.file, 1100),
+    filePath("en.wikipedia.org", w.file, 1100)
+  ];
+  let i = 0;
+  img.classList.remove("shown");
+  status.textContent = "도판 불러오는 중";
+  status.innerHTML = "도판 불러오는 중";
+
+  function done(src){
+    if(mine !== token) return;
+    $("open-img").href = src;
+    status.textContent = "위키미디어 공용 · 퍼블릭 도메인";
+  }
+  function attempt(){
+    if(mine !== token) return;
+    if(i < tries.length){ img.src = tries[i++]; return; }
+    commonsSearch(w.search).then(url => {
+      if(mine !== token) return;
+      if(url){ tries.push(url); img.src = url; }
+      else fail();
+    }).catch(fail);
+  }
+  function fail(){
+    if(mine !== token) return;
+    img.removeAttribute("src");
+    status.innerHTML = '도판을 불러오지 못했습니다 · <a href="https://commons.wikimedia.org/w/index.php?search='
+      + encodeURIComponent(w.search) + '&title=Special:MediaSearch&type=image" target="_blank" rel="noopener">직접 찾아보기</a>';
+  }
+  img.onload = () => { if(mine===token){ img.classList.add("shown"); done(img.currentSrc || img.src); } };
+  img.onerror = attempt;
+  attempt();
+}
+
+function render(){
+  const idx = ((dayIndex + offset) % WORKS.length + WORKS.length) % WORKS.length;
+  const w = WORKS[idx];
+  $("art-title").textContent = w.t;
+  $("art-artist").textContent = w.a;
+  $("art-facts").textContent = w.y + " · " + w.f;
+  $("art-question").textContent = "\u201C" + w.q + "\u201D";
+  $("art-img").alt = w.a + ", " + w.t;
+  $("lookup").href = "https://artsandculture.google.com/search?q=" + encodeURIComponent(w.a + " " + w.t);
+  $("plate-no").textContent = "도판 " + pad(idx+1) + " / " + pad(WORKS.length);
+  loadPlate(w);
+}
+render();
+$("next").addEventListener("click", () => { offset++; render(); });
+
+const URLS = {
+  google:"https://www.google.com/search?q=",
+  naver:"https://search.naver.com/search.naver?query=",
+  arts:"https://artsandculture.google.com/search?q="
+};
+let engine = "google";
+$("engines").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  engine = b.dataset.engine;
+  [...e.currentTarget.children].forEach(x => x.setAttribute("aria-pressed", String(x===b)));
+  $("q").focus();
+});
+function search(){
+  const v = $("q").value.trim();
+  if(v) location.href = URLS[engine] + encodeURIComponent(v);
+}
+$("go").addEventListener("click", search);
+$("q").addEventListener("keydown", e => { if(e.key === "Enter") search(); });
+</script>
+</body>
+</html>
